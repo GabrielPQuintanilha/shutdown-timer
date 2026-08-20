@@ -16,3 +16,8 @@ Thumbs.db
 # Logs e variáveis locais
 *.log
 .env
+
+# Saídas do empacotamento
+build/
+dist/
+*.spec

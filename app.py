@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import subprocess
 import threading
@@ -13,6 +14,8 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 HOST = "127.0.0.1"
 PORT = 8765
+shutdown_scheduled = False
+state_lock = threading.Lock()
 
 
 def shutdown_command(seconds: int) -> list[str]:
@@ -49,11 +52,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = urlparse(self.path).path
-        if path not in {"/api/schedule", "/api/cancel"}:
+        if path not in {"/api/schedule", "/api/cancel", "/api/exit"}:
             self.send_json(404, {"ok": False, "error": "Rota não encontrada."})
             return
 
         try:
+            global shutdown_scheduled
+
             if path == "/api/schedule":
                 length = int(self.headers.get("Content-Length", "0"))
                 data = json.loads(self.rfile.read(length) or b"{}")
@@ -62,14 +67,22 @@ class Handler(SimpleHTTPRequestHandler):
                     raise ValueError("Escolha um tempo entre 1 minuto e 7 dias.")
                 command = shutdown_command(seconds)
             else:
-                command = cancel_command()
+                with state_lock:
+                    is_scheduled = shutdown_scheduled
+                command = cancel_command() if is_scheduled else None
 
-            result = subprocess.run(command, capture_output=True, text=True, timeout=10)
-            if result.returncode != 0:
-                message = (result.stderr or result.stdout).strip()
-                raise RuntimeError(message or "O sistema recusou o comando.")
+            if command:
+                result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+                if result.returncode != 0:
+                    message = (result.stderr or result.stdout).strip()
+                    raise RuntimeError(message or "O sistema recusou o comando.")
+
+            with state_lock:
+                shutdown_scheduled = path == "/api/schedule"
 
             self.send_json(200, {"ok": True})
+            if path in {"/api/cancel", "/api/exit"}:
+                threading.Thread(target=self.server.shutdown, daemon=True).start()
         except (ValueError, TypeError, json.JSONDecodeError) as error:
             self.send_json(400, {"ok": False, "error": str(error)})
         except Exception as error:
@@ -81,7 +94,8 @@ if __name__ == "__main__":
     url = f"http://{HOST}:{PORT}"
     print(f"Shutdown Timer disponível em {url}")
     print("Pressione Ctrl+C para encerrar o servidor.")
-    threading.Timer(0.5, webbrowser.open, args=(url,)).start()
+    if os.environ.get("SHUTDOWN_TIMER_NO_BROWSER") != "1":
+        threading.Timer(0.5, webbrowser.open, args=(url,)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

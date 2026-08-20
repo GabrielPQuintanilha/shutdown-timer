@@ -96,7 +96,14 @@ $('#cancelButton').addEventListener('click', async () => {
     statusText.textContent = 'PRONTO';
     activeControls.classList.add('hidden');
     setupControls.classList.remove('hidden');
-    toast('Desligamento cancelado.');
+    toast('Desligamento cancelado. Encerrando o aplicativo...');
+    setTimeout(() => window.close(), 700);
   } catch (error) { toast(error.message, true); }
   finally { button.disabled = false; }
+});
+
+// pagehide também funciona ao fechar a janela inteira. sendBeacon é próprio para
+// enviar uma última mensagem mesmo enquanto o navegador descarrega a página.
+window.addEventListener('pagehide', () => {
+  navigator.sendBeacon('/api/exit', new Blob(['{}'], { type: 'application/json' }));
 });

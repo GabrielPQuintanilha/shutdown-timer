@@ -2,6 +2,10 @@
 
 Painel web local para agendar e cancelar o desligamento do computador.
 
+## Executável pronto
+
+No Windows, abra `dist/ShutdownTimer.exe`. O servidor e os arquivos da interface já estão incluídos, portanto o Python não precisa estar instalado. Ao cancelar o desligamento ou fechar a página, o servidor também é encerrado.
+
 ## Como executar no Windows
 
 1. Tenha o Python 3 instalado.
