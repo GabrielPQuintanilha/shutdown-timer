@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0c0d10" />
+    <title>Shutdown Timer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header>
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2v10M5.9 5.9a8 8 0 1 0 12.2 0" /></svg>
+        </div>
+        <div>
+          <p class="eyebrow">CONTROLE DO SISTEMA</p>
+          <h1>Shutdown Timer</h1>
+        </div>
+        <div class="status-pill"><span></span><strong id="statusText">PRONTO</strong></div>
+      </header>
+
+      <section class="timer-panel">
+        <p id="timerLabel">SELECIONE QUANDO DESLIGAR</p>
+        <div id="countdown" class="countdown" aria-live="polite">00:30:00</div>
+        <p id="deadline" class="deadline">Nenhum desligamento agendado</p>
+      </section>
+
+      <section id="setupControls">
+        <div class="presets" aria-label="Tempos rápidos">
+          <button class="preset active" data-seconds="1800">30 <span>MIN</span></button>
+          <button class="preset" data-seconds="3600">1 <span>HORA</span></button>
+          <button class="preset" data-seconds="7200">2 <span>HORAS</span></button>
+          <button class="preset" data-seconds="10800">3 <span>HORAS</span></button>
+        </div>
+
+        <div class="custom-row">
+          <label for="customTime">TEMPO PERSONALIZADO</label>
+          <div class="custom-input">
+            <button id="decrease" aria-label="Diminuir tempo">−</button>
+            <input id="customTime" type="number" min="1" max="10080" value="30" />
+            <select id="customUnit" aria-label="Unidade de tempo">
+              <option value="60">minutos</option>
+              <option value="3600">horas</option>
+            </select>
+            <button id="increase" aria-label="Aumentar tempo">+</button>
+          </div>
+        </div>
+
+        <button id="scheduleButton" class="primary-button">
+          <svg viewBox="0 0 24 24"><path d="M12 2v10M5.9 5.9a8 8 0 1 0 12.2 0" /></svg>
+          AGENDAR DESLIGAMENTO
+        </button>
+      </section>
+
+      <section id="activeControls" class="active-controls hidden">
+        <button id="cancelButton" class="cancel-button">CANCELAR DESLIGAMENTO</button>
+        <p>Você pode fechar esta janela. O sistema manterá o agendamento.</p>
+      </section>
+
+      <div id="toast" class="toast" role="status"></div>
+      <footer><span>●</span> EXECUÇÃO LOCAL · SEUS DADOS NÃO SAEM DESTE PC</footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

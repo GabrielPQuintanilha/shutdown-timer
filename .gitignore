@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Arquivos de IDE e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs e variáveis locais
+*.log
+.env
